@@ -27,6 +27,7 @@ func (w *Window) Resource() interface{} {
 
 func (w *Window) Discard() error {
 	// TODO: image, webview
+	IN.Discard()
 	w.target.Close()
 	w.target.Release()
 	return nil

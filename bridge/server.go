@@ -32,5 +32,6 @@ func (s *server) Sync(res map[string]interface{}, call *rpc.Call) (interface{}, 
 		return nil, errors.New("no Handle string")
 	}
 	fn.SetCallers(&res, call.Caller)
+
 	return s.bridge.Apply(handle.Handle(hstr), res)
 }

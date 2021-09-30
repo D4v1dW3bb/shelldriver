@@ -7,7 +7,8 @@ import (
 type Indicator struct {
 	handle.Handle
 
-	Icon string
-	Text string
-	Menu *Menu
+	Icon   string
+	Text   string
+	Menu   *Menu
+	Window *Window
 }

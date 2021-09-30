@@ -8,19 +8,11 @@ import (
 	"github.com/progrium/shelldriver/shell"
 )
 
-func init() {
-	register(&Indicator{})
-}
-
 type Indicator struct {
 	shell.Indicator `mapstructure:",squash"`
 
 	target *cocoa.NSStatusItem
 	menu   *Menu
-}
-
-func (i *Indicator) Resource() interface{} {
-	return &i.Indicator
 }
 
 func (i *Indicator) Discard() error {

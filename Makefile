@@ -1,5 +1,4 @@
-install:
-	go install ./cmd/shellbridge
 
-demo: install
+demo:
+	go install ./cmd/shellbridge
 	go run ./_examples/demo/main.go

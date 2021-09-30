@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"os/exec"
 
@@ -14,6 +15,10 @@ import (
 	"github.com/progrium/qtalk-go/talk"
 	"github.com/progrium/shelldriver/handle"
 )
+
+func init() {
+	log.SetFlags(log.Flags() | log.Llongfile)
+}
 
 type Shell struct {
 	Debug io.Writer
@@ -30,6 +35,7 @@ func New(sess *mux.Session) *Shell {
 			bridgecmd = "shellbridge"
 		}
 		cmd = exec.Command(bridgecmd)
+		cmd.Stderr = os.Stderr
 		wc, err := cmd.StdinPipe()
 		if err != nil {
 			panic(err)

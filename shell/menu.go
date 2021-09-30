@@ -21,6 +21,8 @@ type MenuItem struct {
 	Separator bool
 	Enabled   bool
 	Checked   bool
+	// Added for windows to change check state on click
+	Checkable bool
 
 	OnClick  *fn.Ptr
 	SubItems []MenuItem
