@@ -1,14 +1,13 @@
 package bridge
 
-//import "github.com/progrium/shelldriver/walk"
-import "github.com/lxn/walk"
+import "github.com/Gipcomp/winapi"
 
 func init() {
 	register(&MnWdw{})
 }
 
 type MnWdw struct {
-	walk.MainWindow `mapstructure:",squash"`
+	winapi.MainWindow `mapstructure:",squash"`
 }
 
 func (m *MnWdw) Resource() interface{} {

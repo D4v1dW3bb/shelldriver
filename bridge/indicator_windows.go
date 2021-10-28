@@ -3,10 +3,9 @@ package bridge
 import (
 	"unsafe"
 
-	"github.com/lxn/walk"
-	"github.com/lxn/win"
+	"github.com/Gipcomp/win32/user32"
+	"github.com/Gipcomp/winapi"
 	"github.com/progrium/shelldriver/shell"
-	//"github.com/progrium/shelldriver/walk"
 )
 
 // Indicator on mac is Systray on Winows
@@ -14,8 +13,8 @@ import (
 type Indicator struct {
 	shell.Indicator `mapstructure:",squash"`
 
-	// mainWindow *walk.MainWindow
-	target *walk.NotifyIcon
+	// mainWindow *winapi.MainWindow
+	target *winapi.NotifyIcon
 	menu   *Menu
 }
 
@@ -32,15 +31,15 @@ func (i *Indicator) Discard() error {
 // in bridge.Main()
 func (i *Indicator) Apply() error {
 	// Retrieve our *NotifyIcon from the message window.
-	ptr := win.GetWindowLongPtr(MainWindow.Handle(), win.GWLP_USERDATA)
-	i.target = (*walk.NotifyIcon)(unsafe.Pointer(ptr))
+	ptr := user32.GetWindowLongPtr(MainWindow.Handle(), user32.GWLP_USERDATA)
+	i.target = (*winapi.NotifyIcon)(unsafe.Pointer(ptr))
 
 	// // Text
 	// if i.Text != "" {
 	// 	// Seams that text Icons do not work on windows
 	// 	// Todo for a later moment: research if text Icons work
 	// 	// or find a workaround for windows
-	// 	icon, err := walk.Resources.Icon(i.Text)
+	// 	icon, err := winapi.Resources.Icon(i.Text)
 	// 	if err != nil {
 	// 		return err
 	// 	}
@@ -48,7 +47,7 @@ func (i *Indicator) Apply() error {
 	// Icon
 	if i.Icon != "" {
 
-		icon, err := walk.Resources.Icon(i.Icon)
+		icon, err := winapi.Resources.Icon(i.Icon)
 		if err != nil {
 			return err
 		}

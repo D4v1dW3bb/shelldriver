@@ -4,10 +4,11 @@ import (
 	"log"
 	"time"
 
-	"github.com/lxn/walk"
-	"github.com/lxn/win"
+	"github.com/Gipcomp/win32/gdi32"
+	"github.com/Gipcomp/win32/user32"
+	"github.com/Gipcomp/win32/winuser"
+	"github.com/Gipcomp/winapi"
 	"github.com/progrium/shelldriver/shell"
-	//"github.com/progrium/shelldriver/walk"
 )
 
 func init() {
@@ -17,7 +18,7 @@ func init() {
 type Window struct {
 	shell.Window `mapstructure:",squash"`
 
-	mainWindow  *walk.MainWindow
+	mainWindow  *winapi.MainWindow
 	windowStyle int
 	// // windowExstyle prepaired for WS_EX_..... style messaging
 	// // see also functions at the end of this file
@@ -30,8 +31,8 @@ func (w *Window) Resource() interface{} {
 
 func (w *Window) Discard() error {
 	// TODO: image, webview
-	win.SendMessage(w.mainWindow.Handle(), win.WM_CLOSE, 0, 0)
-	win.DestroyWindow(w.mainWindow.Handle())
+	user32.SendMessage(w.mainWindow.Handle(), user32.WM_CLOSE, 0, 0)
+	user32.DestroyWindow(w.mainWindow.Handle())
 	return nil
 }
 
@@ -48,20 +49,20 @@ func (w *Window) Apply() error {
 
 	// Center
 	if w.Center {
-		var rect win.RECT
-		screen := win.GetDesktopWindow()
-		win.GetClientRect(screen, &rect)
+		var rect gdi32.RECT
+		screen := user32.GetDesktopWindow()
+		user32.GetClientRect(screen, &rect)
 
-		//fmt.Println(win.GetDeviceCaps(hdc, win.HORZSIZE))
+		//fmt.Println(user32.GetDeviceCaps(hdc, user32.HORZSIZE))
 		w.Position.X = float64(rect.Right/2) - (w.Size.W / 2)
 		w.Position.Y = float64(rect.Bottom/2) - (w.Size.H / 2)
 	}
 
 	// AlwaysOnTop
 	if w.AlwaysOnTop {
-		win.SetWindowPos(w.mainWindow.Handle(), win.HWND_TOPMOST, int32(w.Position.X), int32(w.Position.Y), int32(w.Size.W), int32(w.Size.H), win.SWP_SHOWWINDOW)
+		user32.SetWindowPos(w.mainWindow.Handle(), user32.HWND_TOPMOST, int32(w.Position.X), int32(w.Position.Y), int32(w.Size.W), int32(w.Size.H), user32.SWP_SHOWWINDOW)
 	} else {
-		win.SetWindowPos(w.mainWindow.Handle(), win.HWND_NOTOPMOST, int32(w.Position.X), int32(w.Position.Y), int32(w.Size.W), int32(w.Size.H), win.SWP_SHOWWINDOW)
+		user32.SetWindowPos(w.mainWindow.Handle(), user32.HWND_NOTOPMOST, int32(w.Position.X), int32(w.Position.Y), int32(w.Size.W), int32(w.Size.H), user32.SWP_SHOWWINDOW)
 	}
 
 	// URL
@@ -72,44 +73,44 @@ func (w *Window) Apply() error {
 	}
 
 	if w.Closable {
-		closable(win.MF_BYCOMMAND | win.MF_ENABLED)
+		closable(winuser.MF_BYCOMMAND | winuser.MF_ENABLED)
 	} else {
-		closable(win.MF_BYCOMMAND | win.MF_DISABLED | win.MF_GRAYED)
+		closable(winuser.MF_BYCOMMAND | winuser.MF_DISABLED | winuser.MF_GRAYED)
 	}
 
 	// Get current window style
-	w.windowStyle = int(win.GetWindowLong(w.mainWindow.Handle(), win.GWL_STYLE))
+	w.windowStyle = int(user32.GetWindowLong(w.mainWindow.Handle(), user32.GWL_STYLE))
 
 	// Minimizable
-	if w.Minimizable && !w.checkWindowStyle(win.WS_MINIMIZEBOX) {
-		w.addWindowStyle(win.WS_MINIMIZEBOX)
-	} else if !w.Minimizable && w.checkWindowStyle(win.WS_MINIMIZEBOX) {
-		w.removeWindowStyle(win.WS_MINIMIZEBOX)
+	if w.Minimizable && !w.checkWindowStyle(user32.WS_MINIMIZEBOX) {
+		w.addWindowStyle(user32.WS_MINIMIZEBOX)
+	} else if !w.Minimizable && w.checkWindowStyle(user32.WS_MINIMIZEBOX) {
+		w.removeWindowStyle(user32.WS_MINIMIZEBOX)
 	}
 
 	// Resizable
-	if w.Resizable && !w.checkWindowStyle(win.WS_SIZEBOX) {
-		w.addWindowStyle(win.WS_SIZEBOX | win.WS_MAXIMIZEBOX)
-	} else if !w.Resizable && w.checkWindowStyle(win.WS_SIZEBOX) {
-		w.removeWindowStyle(win.WS_SIZEBOX | win.WS_MAXIMIZEBOX)
+	if w.Resizable && !w.checkWindowStyle(user32.WS_SIZEBOX) {
+		w.addWindowStyle(user32.WS_SIZEBOX | user32.WS_MAXIMIZEBOX)
+	} else if !w.Resizable && w.checkWindowStyle(user32.WS_SIZEBOX) {
+		w.removeWindowStyle(user32.WS_SIZEBOX | user32.WS_MAXIMIZEBOX)
 	}
 
 	// Borderless
 	needsTitleBar := w.Closable || w.Minimizable
 	if w.Borderless {
 		if needsTitleBar {
-			w.removeWindowStyle(win.WS_BORDER)
-			w.addWindowStyle(win.WS_MAXIMIZEBOX)
+			w.removeWindowStyle(user32.WS_BORDER)
+			w.addWindowStyle(user32.WS_MAXIMIZEBOX)
 		} else {
-			w.removeWindowStyle(win.WS_BORDER | win.WS_DLGFRAME | win.WS_THICKFRAME | win.WS_SYSMENU | win.WS_MAXIMIZEBOX)
+			w.removeWindowStyle(user32.WS_BORDER | user32.WS_DLGFRAME | user32.WS_THICKFRAME | user32.WS_SYSMENU | user32.WS_MAXIMIZEBOX)
 		}
 
 	} else {
 		if needsTitleBar {
-			w.addWindowStyle(win.WS_BORDER | win.WS_DLGFRAME | win.WS_THICKFRAME | win.WS_SYSMENU | win.WS_MAXIMIZEBOX)
+			w.addWindowStyle(user32.WS_BORDER | user32.WS_DLGFRAME | user32.WS_THICKFRAME | user32.WS_SYSMENU | user32.WS_MAXIMIZEBOX)
 		} else {
-			w.addWindowStyle(win.WS_BORDER)
-			w.removeWindowStyle(win.WS_DLGFRAME | win.WS_THICKFRAME | win.WS_SYSMENU | win.WS_MAXIMIZEBOX)
+			w.addWindowStyle(user32.WS_BORDER)
+			w.removeWindowStyle(user32.WS_DLGFRAME | user32.WS_THICKFRAME | user32.WS_SYSMENU | user32.WS_MAXIMIZEBOX)
 		}
 	}
 	setWindowStyle(int32(w.windowStyle))
@@ -117,18 +118,18 @@ func (w *Window) Apply() error {
 	// Background
 	// Todo: background of WebView
 	if w.Background != nil {
-		brush, _ := walk.NewSolidColorBrush(walk.RGB(byte(w.Background.R), byte(w.Background.G), byte(w.Background.B)))
+		brush, _ := winapi.NewSolidColorBrush(winapi.RGB(byte(w.Background.R), byte(w.Background.G), byte(w.Background.B)))
 		w.mainWindow.SetBackground(brush)
 	}
 
 	// Image
 	// Todo: image placement and size, stretch, center...
 	if w.Image != "" {
-		bmp, err := walk.NewBitmapFromFileForDPI(w.Image, w.mainWindow.DPI())
+		bmp, err := winapi.NewBitmapFromFileForDPI(w.Image, w.mainWindow.DPI())
 		if err != nil {
 			log.Panicln(err)
 		}
-		bmb, err := walk.NewBitmapBrush(bmp)
+		bmb, err := winapi.NewBitmapBrush(bmp)
 		if err != nil {
 			log.Panicln(err)
 		}
@@ -171,31 +172,31 @@ func (w *Window) removeWindowStyle(style int) {
 }
 
 func (w *Window) checkWindowStyle(dwType int32) bool {
-	return ((win.GetWindowLong(w.mainWindow.Handle(), win.GWL_STYLE) & dwType) != 0)
+	return ((user32.GetWindowLong(w.mainWindow.Handle(), user32.GWL_STYLE) & dwType) != 0)
 }
 
 func closable(style uint32) {
-	win.EnableMenuItem(
-		win.GetSystemMenu(
+	user32.EnableMenuItem(
+		user32.GetSystemMenu(
 			MainWindow.Handle(),
 			false),
-		win.SC_CLOSE,
+		user32.SC_CLOSE,
 		style)
 }
 
 func setWindowStyle(style int32) {
-	win.SetWindowLong(
+	user32.SetWindowLong(
 		MainWindow.Handle(),
-		win.GWL_STYLE,
+		user32.GWL_STYLE,
 		style,
 	)
 }
 
 // // WS_EX... style messages functions for windows
 // func setWindowExStyle(style int32) {
-// 	win.SetWindowLong(
+// 	user32.SetWindowLong(
 // 		MainWindow.Handle(),
-// 		win.GWL_EXSTYLE,
+// 		user32.GWL_EXSTYLE,
 // 		style,
 // 	)
 // }

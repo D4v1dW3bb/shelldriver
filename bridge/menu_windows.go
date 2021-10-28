@@ -7,16 +7,15 @@ import (
 	"os"
 	"time"
 
-	"github.com/lxn/walk"
+	"github.com/Gipcomp/winapi"
 	"github.com/progrium/shelldriver/shell"
-	//"github.com/progrium/shelldriver/walk"
 )
 
 type Menu struct {
 	shell.Menu `mapstructure:",squash"`
 
-	ni     *walk.NotifyIcon
-	target *walk.Menu
+	ni     *winapi.NotifyIcon
+	target *winapi.Menu
 }
 
 func (m *Menu) Resource() interface{} {
@@ -37,7 +36,7 @@ func (m *Menu) Apply() error {
 		if i.SubItems == nil {
 			m.ni.ContextMenu().Actions().Add(MenuItem(i))
 		} else {
-			subMenu, _ := walk.NewMenu()
+			subMenu, _ := winapi.NewMenu()
 			for _, si := range i.SubItems {
 				subMenu.Actions().Add(MenuItem(si))
 			}
@@ -55,7 +54,7 @@ func (m *Menu) Apply() error {
 			// todo: test if this has the same effect as setting an Icon on Mac
 
 			if i.Icon != "" {
-				icon, err := walk.Resources.Image(i.Icon)
+				icon, err := winapi.Resources.Image(i.Icon)
 				if err == nil {
 					action.SetImage(icon)
 				}
@@ -66,11 +65,11 @@ func (m *Menu) Apply() error {
 	return nil
 }
 
-func MenuItem(i shell.MenuItem) *walk.Action {
-	obj := walk.NewAction()
+func MenuItem(i shell.MenuItem) *winapi.Action {
+	obj := winapi.NewAction()
 	// Separator
 	if i.Separator {
-		action := walk.NewSeparatorAction()
+		action := winapi.NewSeparatorAction()
 		return action
 	}
 
@@ -94,7 +93,7 @@ func MenuItem(i shell.MenuItem) *walk.Action {
 	// todo: test if this has the same effect as setting an Icon on Mac
 
 	if i.Icon != "" {
-		icon, err := walk.Resources.Image(i.Icon)
+		icon, err := winapi.Resources.Image(i.Icon)
 		if err == nil {
 			obj.SetImage(icon)
 		}
@@ -103,7 +102,7 @@ func MenuItem(i shell.MenuItem) *walk.Action {
 	// Quit default action
 	if i.Title == "Quit" {
 		obj.SetText("Quit")
-		obj.Triggered().Attach(func() { walk.App().Exit(0) })
+		obj.Triggered().Attach(func() { winapi.App().Exit(0) })
 	}
 
 	if i.Checkable {
@@ -131,19 +130,19 @@ func MenuItem(i shell.MenuItem) *walk.Action {
 
 	// SubItems
 	if len(i.SubItems) > 0 {
-		var sub *walk.Menu
+		var sub *winapi.Menu
 
 		for _, i := range i.SubItems {
 			sub.Actions().Add(MenuItem(i))
 			log.Println("Added: ", i)
 		}
-		obj = walk.NewMenuAction(sub)
+		obj = winapi.NewMenuAction(sub)
 		if i.Title != "" {
 			obj.SetText(i.Title)
 		}
 
 		if i.Icon != "" {
-			icon, err := walk.Resources.Image(i.Icon)
+			icon, err := winapi.Resources.Image(i.Icon)
 			if err == nil {
 				obj.SetImage(icon)
 			}

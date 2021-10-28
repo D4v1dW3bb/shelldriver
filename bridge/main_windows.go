@@ -4,20 +4,18 @@ import (
 	"log"
 	"strings"
 
-	"github.com/lxn/walk"
-	"github.com/lxn/walk/declarative"
-	//"github.com/progrium/shelldriver/declarative"
-	//"github.com/progrium/shelldriver/walk"
+	"github.com/Gipcomp/winapi"
+	"github.com/Gipcomp/winapi/declarative"
 )
 
 // MainWindow Holds the main window
-var MainWindow *walk.MainWindow
+var MainWindow *winapi.MainWindow
 
 // WebView holds the webview child
-var WebView *walk.WebView
+var WebView *winapi.WebView
 
 // IN holds the notification icon
-var IN *walk.NotifyIcon
+var IN *winapi.NotifyIcon
 
 // Main initializes the mainwindow, webview and notification icon
 func Main() {
@@ -39,10 +37,10 @@ func Main() {
 	}.Create()
 
 	// Enable this to enable webview on windows and to use w.URL.
-	WebView, _ = walk.NewWebView(MainWindow)
+	WebView, _ = winapi.NewWebView(MainWindow)
 	WebView.SetName("Webview")
 
-	IN, err := walk.NewNotifyIcon(MainWindow)
+	IN, err := winapi.NewNotifyIcon(MainWindow)
 	if err != nil {
 		log.Panic(err)
 	}
